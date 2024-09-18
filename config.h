@@ -4,25 +4,28 @@
 /* appearance */
 static const int showbar                  = 0;
 static const int topbar                   = 0;
+static const int swallowfloating          = 1;        /* 1 means swallow floating windows */
 static const unsigned int borderpx        = 1;  /* border pixel of windows */
 static const unsigned int snap            = 32; /* snap pixel */
 static const char *fonts[]                = { "monospace:size=10" };
 static const char col_gray1[]             = "#000000";
 static const char col_gray2[]             = "#444444";
-static const char col_gray3[]             = "#bbbbbb";
-static const char col_cyan[]              = "#005577";
 static const char *colors[][3]            = {
 	/*               fg         bg          border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray1 },
-	[SchemeSel]  = { col_gray2, col_cyan,  col_cyan  },
+	[SchemeNorm] = { col_gray2, col_gray1, col_gray1 },
+	[SchemeSel]  = { col_gray2, col_gray1,  col_gray1  },
 };
 
 /* tagging */
 static const char *tags[] = { "1", "2", "3" };
 
 static const Rule rules[] = {
-    /* class      instance    title       tags mask     monitor */
-    { "Gimp",     NULL,       NULL,       0,              -1 },
+      /* class       instance  title   tags mask  isfloating  isterminal  noswallow  monitor */
+       { "Alacritty", NULL, 	NULL,   0,          0,          1,           0,        -1 },
+       { "Gimp",      NULL,     NULL,   0,    	    1,          0,           0,        -1 },
+       { "Firefox",   NULL,     NULL,   0,   	    0,          0,           0,        -1 },
+       { "soffice.bin", NULL,   NULL,   0,          0,          0,           0,        -1 },
+       { "Blender",   NULL,	NULL,   1 << 1,       1,          0,           0,        -1 },
 };
 
 /* layout(s) */
@@ -50,18 +53,29 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *menucmd[] = { "rofi", "-show", "drun", NULL };
+static const char *menucmd[] = { 
+	"rofi", 
+	"-theme", "~/.config/rofi/config.rasi", 
+	"-show", "drun", 
+	"-location", "0",
+	"-xoffset", "0",
+	"-yoffset", "0",
+	NULL };
 static const char *browser[]  = { "firefox", NULL };
-static const char *termcmd[] = { "alacritty", NULL };
+static const char *zen[]      = { "zen", NULL };
+static const char *termcmd[]  = { "alacritty", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        			function        argument */
         { MODKEY,                       XK_p,      			spawn,          {.v = menucmd } },
 	{ MODKEY,			XK_w,				spawn,		{.v = browser } },
+	{ MODKEY,			XK_z,				spawn,		{.v = zen } },
 	{ MODKEY,		        XK_Return, 			spawn,          {.v = termcmd } },
 	{ 0, 				XF86XK_AudioRaiseVolume, 	spawn, 		SHCMD("wpctl set-volume @DEFAULT_SINK@ 0.05+") },
 	{ 0, 				XF86XK_AudioLowerVolume, 	spawn, 		SHCMD("wpctl set-volume @DEFAULT_SINK@ 0.05-") },
 	{ 0, 				XF86XK_AudioMute,		spawn, 		SHCMD("wpctl set-mute @DEFAULT_SINK@ toggle") },
+    	{ 0,                            XF86XK_MonBrightnessUp,    	spawn,          SHCMD ("brightnessctl set +10%")},
+    	{ 0,                            XF86XK_MonBrightnessDown,  	spawn,          SHCMD ("brightnessctl set 10%-")},	
 	{ MODKEY, 			XK_f,				setlayout,      {.v = &layouts[1]} },
 	{ MODKEY|ShiftMask,             XK_Return, 			zoom,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      			killclient,     {0} },
@@ -83,6 +97,7 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_1,      			                0)
 	TAGKEYS(                        XK_2,      			                1)
 	TAGKEYS(                        XK_3,      			                2)
+	{ MODKEY|ShiftMask,		XK_s,				spawn,		SHCMD("./.config/rofi/power-menu.sh") }, 
 	{ MODKEY|ShiftMask,             XK_q,      			quit,           {0} }, 
 };	
 
